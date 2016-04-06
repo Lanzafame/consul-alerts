@@ -1,0 +1,36 @@
+---
+  platform: linux
+
+  image_resource:
+    type: docker-image
+    source:
+      repository: registry.iix/fedora-gofed
+      tag: latest
+      username: iixpack
+      email: alanzafame@iix.net
+      password: {{registry-iix-password}}
+
+  inputs:
+  - name: consul-alerts-src
+
+  outputs:
+  - name: rpm-consul-alerts
+
+  run:
+    path: sh
+    args:
+    - -exc
+    - |
+      gofed -p AcalephStorage -r consul-alerts -f
+      cd golang-github-AcalephStorage-consul-alerts/fedora/golang-github-AcalephStorage-consul-alerts
+      git init
+      git add *.spec
+      git commit -m "New spec file"
+      TAR=`ls | grep *.tar.gz`
+      echo `md5sum ${TAR}` > sources
+      git add sources
+      git commit -m "New sources file"
+      rm -rf consul-alerts-*
+      cd ..
+      mv golang-github-AcalephStorage-consul-alerts rpm-consul-alerts/
+      
